@@ -1,0 +1,439 @@
+<script> 
+    
+    let map, errorWindow;
+    
+    // container type :
+    const MARKERS = 1, CLICKMARKER = 2, USERMARKER = 3 ;
+    const MARKERWINDOWINFOS = 4, CLICKWINDOWINFO = 5;
+
+    const CLICKTITLE = "User Click"
+
+    let markers = [], clickMarker = [], userMarker = [];
+    let markerWindowinfos = [], clickWindowInfo = [];
+    const initLatlng = { lat: 23.50, lng: 120.98 };
+
+    var centerLatlng = initLatlng;
+    var centerIndex = -1;
+
+    const normalZoom = 8;
+    const closerZoom = 16;
+    const normalRange = 0.01;
+
+    var isMarkerHide = false;
+    var lastZoom = normalZoom;
+    const iconSizeZoom0 = 24;
+
+function initMap() {
+
+    map = new google.maps.Map(document.getElementById("map"), {
+        zoom: normalZoom,
+        center: initLatlng,
+        styles: [
+            { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+            { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+            { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+            { featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }], },
+            { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }], },
+            { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#263c3f" }], },
+            { featureType: "poi.park", elementType: "labels.text.fill", stylers: [{ color: "#6b9a76" }], },
+            { featureType: "road", elementType: "geometry", stylers: [{ color: "#38414e" }], },
+            { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#212a37" }], },
+            { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#9ca5b3" }], },
+            { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#746855" }], },
+            { featureType: "road.highway", elementType: "geometry.stroke", stylers: [{ color: "#1f2835" }], },
+            { featureType: "road.highway", elementType: "labels.text.fill", stylers: [{ color: "#f3d19c" }], },
+            { featureType: "transit", elementType: "geometry", stylers: [{ color: "#2f3948" }], },
+            { featureType: "transit.station", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }], },
+            { featureType: "water", elementType: "geometry", stylers: [{ color: "#17263c" }], },
+            { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#515c6d" }], },
+            { featureType: "water", elementType: "labels.text.stroke", stylers: [{ color: "#17263c" }], },
+        ],
+    });
+
+    const locationButton = document.createElement("button");
+    const clickButton = document.createElement("button");
+
+    locationButton.textContent = "My Location";
+    locationButton.classList.add("custom-map-control-button");
+    map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(locationButton);
+    locationButton.addEventListener("click", () => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition((position) => {
+                clearMap()
+
+                const pos = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude,
+                };
+
+                aim2Map(closerZoom, pos);
+                setUserCenterPos(pos, -1);
+                placeMarker(pos, [], USERMARKER, getMarkerIconSize())
+
+                readDataFromFirestore(pos)
+
+            }, () => {
+                handleError("getCurrentPosition", 
+                    "The Geolocation service failed.", 
+                    errorWindow, map.getCenter());
+            });
+        } else {
+            handleError("getCurrentPosition", 
+                "Browser doesn't support geolocation.", 
+                errorWindow, map.getCenter());
+        }
+    });
+
+    clickButton.textContent = "Start from here";
+    clickButton.classList.add("custom-map-control-button");
+    map.controls[google.maps.ControlPosition.BOTTOM].push(clickButton);
+
+    google.maps.event.addListener(map, 'click', function(event) {
+        removeMarker(CLICKMARKER)
+        removeWindowInfo(CLICKWINDOWINFO)
+
+        placeMarker(event.latLng, [], CLICKMARKER, getMarkerIconSize());
+        setWindowInfo(CLICKMARKER, CLICKWINDOWINFO)
+
+        setUserCenterPos(event.latLng, -1);
+    });
+
+    google.maps.event.addListener(map, 'zoom_changed', function() {
+        if (!isMarkerHide && map.getZoom() < 14)
+            hideMarkers(MARKERS)
+        if(isMarkerHide && map.getZoom() > 14)
+            showMarkers(MARKERS);
+
+        setMarkerIcon(MARKERS, getMarkerIconSize())       
+        setMarkerIcon(USERMARKER, getMarkerIconSize()) 
+        setMarkerIcon(CLICKMARKER, getMarkerIconSize()) 
+    });
+
+    google.maps.event.addDomListener(
+        document.getElementById("map"), 'load', initMap
+        );
+}
+
+function handleError(strErrFunc, strErrMsg, infoWindow, pos) {
+    infoWindow.setPosition(pos);
+    infoWindow.setContent(
+        "[Err] : " + strErrFunc + "> " + strErrMsg 
+    );
+    infoWindow.open(map);
+}
+
+function aim2Map(zoomSize, center) {
+    map.setZoom(zoomSize);
+    map.setCenter(center);
+}
+
+function readDataFromFirestore(center) {
+    const lesserGeopoint = new firebase.firestore.GeoPoint(
+        center.lat-normalRange, 
+        center.lng-normalRange,
+    );
+    const greaterGeopoint = new firebase.firestore.GeoPoint(
+        center.lat+normalRange, 
+        center.lng+normalRange,
+    );
+
+    db.collection("PL_Marker_DB")
+    .where('location', '>', lesserGeopoint)
+    .where('location', '<', greaterGeopoint)
+    .get()
+    .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+            const pos = {
+                lat: doc.data()["location"]._lat,
+                lng: doc.data()["location"]._long,
+            };
+            if (pos.lng > center.lng-normalRange &&
+                pos.lng < center.lng+normalRange) {
+                placeMarker(pos, doc.data(), MARKERS, getMarkerIconSize())
+            }
+        });
+        setWindowInfo(MARKERS, MARKERWINDOWINFOS)
+    })
+    .catch((error) => {
+        handleError("readDataFromFirestore", 
+                    "The Database service failed.", 
+                    errorWindow, pos);
+    });
+}
+
+function placeMarker(pos, data, type, size) {
+    var strTitle = data.hasOwnProperty("title") ? 
+        data["title"] : CLICKTITLE;
+    var strSnippet = data.hasOwnProperty("address") ? 
+        data["address"] + decorateSnippet(data) : 
+        "";
+    var strType = data.hasOwnProperty("type") ? 
+        data["type"] : 
+        "";
+
+    var marker = new google.maps.Marker({
+        title: strTitle,
+        snippet: strSnippet,
+        position: pos, 
+        map: map,
+        icon: new google.maps.MarkerImage(
+                getMarkerIconPath(strType), 
+                null, 
+                null, 
+                null, 
+                new google.maps.Size(size, size) 
+            ),
+    });
+
+    container = getContainer(type)
+    container.push(marker);
+    mapContainer2Type(type, container);
+}
+
+function decorateSnippet(data) {
+    var res = "";
+    const dayIndex = (new Date().getDay() + 6) % 7;
+    const strParking = data["parking"];
+    const strRemark = data["other"];
+
+    if (data["time"].length == 1)
+        res += '<br>' + data["time"][0];
+    else
+        res += '<br>' + data["time"][dayIndex];
+
+    if (strParking == "O")
+        res += '<br>' + 'Parking';
+    else if (strParking == "X")
+        res += '<br>' + 'No parking';
+
+    if (strRemark.length > 0)
+        res += "<br>" + strRemark.toString();
+
+    return res;
+}
+
+function setMapOnAll(type, bMap) {
+    container = getContainer(type)
+    for (let i = 0; i < container.length; i++) {
+        if(bMap)
+            container[i].setMap(map);
+        else
+            container[i].setMap(null);
+    }
+}
+
+function showMarkers(type) {
+    isMarkerHide = false;
+    setMapOnAll(type, true);
+}
+
+function hideMarkers(type) {
+    isMarkerHide = true;
+    setMapOnAll(type, false);
+}
+
+function clearMap() {
+    removeMarker(USERMARKER)
+    removeMarker(CLICKMARKER)
+    removeMarker(MARKERS)
+
+    removeWindowInfo(MARKERWINDOWINFOS)
+    removeWindowInfo(CLICKWINDOWINFO)
+}
+
+function removeMarker(type) {
+    setMapOnAll(type, false);
+    mapContainer2Type(type, [])
+}
+
+function removeWindowInfo(type) {
+    mapContainer2Type(type, []);
+}
+
+function setMarkerIcon(type, size) {
+    container = getContainer(type);
+    for (let i = 0; i < container.length; i++) {
+        container[i].setIcon(
+            new google.maps.MarkerImage(
+                container[i].getIcon().url, //marker's same icon graphic
+                null, //size
+                null, //origin
+                null, //anchor
+                new google.maps.Size(size, size) //changes the scale
+            )
+        );
+    }
+    mapContainer2Type(type, container);
+}
+
+function getMarkerIconSize() {
+    var zoom = map.getZoom();
+    var zoomSize = iconSizeZoom0 * (1 + 0.2 * (zoom - lastZoom));
+    zoomSize = Math.max(iconSizeZoom0, zoomSize);
+    return zoomSize;
+}
+
+function getMarkerIconPath(type) {
+    const iconBase =
+    "http://maps.gstatic.com/mapfiles/place_api/icons/";
+
+    if (type.length == 0)
+        return iconBase + 'geocode-71.png'
+
+    switch(type) {
+        case "咖啡廳":
+            return iconBase + 'cafe-71.png';
+        case "速食店":
+            return iconBase + 'museum-71.png';
+        case "交通建設":
+            return iconBase + 'train-71.png';
+        case "政府機關":
+            return iconBase + 'civic_building-71.png';   
+        case "加油站":
+            return iconBase + 'gas_station-71.png';
+        case "商店":
+            return iconBase + 'shopping-71.png';
+        case "便利商店":
+            return iconBase + 'government-71.png';
+        case "戶外":
+            return iconBase + 'mountain-71.png';
+        default:
+            return iconBase + 'zoo-71.png';
+    }
+}
+
+function setWindowInfo(markerType, windowInfoType) {
+    markerContainer = getContainer(markerType)
+    windowInfoContainer = getContainer(windowInfoType)
+    for (let i = 0; i < markerContainer.length; i++) {
+        var markerWindow = new google.maps.InfoWindow({
+            content: getMarkerWindowInfo(markerContainer[i]),
+        });
+
+        windowInfoContainer.push(markerWindow);
+        markerContainer[i].addListener("click", () => {
+            closeOtherWindow();
+
+            setUserCenterPos(markerContainer[i].position, i);
+            windowInfoContainer[i].open({
+                anchor: markerContainer[i],
+                map,
+                shouldFocus: false,
+            });
+        });
+    }
+    mapContainer2Type(markerType, markerContainer);
+    mapContainer2Type(windowInfoType, windowInfoContainer);
+}
+
+function getMarkerWindowInfo(marker) {
+    if(marker.title == CLICKTITLE || marker.titlt.length == 0)
+        reportParam = marker.position
+    else
+        reportParam = marker.title
+    
+    const contentString = 
+        "<h1>" + marker.title + "</h1>" + 
+        "<h3>" + marker.snippet + "</h3>" +
+        '<button onclick="markerNevigation(\''+marker.position+ '\')" class="btn">↓</button>' +
+        '<button onclick="newSearchCenter(\''+marker.position+ '\')" class="btn">⊙</button>' +
+        '<button onclick="reportMarker(\''+ reportParam + '\')" class="btn">？</button>' 
+        ;   
+    return contentString;
+}
+
+function markerNevigation(pos) { 
+    console.log(map.getCenter());  
+    let directionsService = new google.maps.DirectionsService();
+    let request = {
+        origin: centerLatlng,
+        destination: pos,
+        travelMode: 'WALKING'
+    };
+    
+    directionsService.route(request, function(response) {
+        if (status == 'OK') {
+            let directionsDisplay = new google.maps.DirectionsRenderer({
+                map: map,
+                directions: response,
+            });
+        } 
+        else {
+            handleError("markerNevigation", 
+                "Nevigation failed to " + pos,
+                errorWindow, map.getCenter());
+        }
+    });
+}
+
+function newSearchCenter(pos) {
+    removeMarker(MARKERS)
+
+    const center = {
+        lat: Number(pos.split(', ')[0].split('(')[1]),
+        lng: Number(pos.split(', ')[1].split(')')[0]),
+    }
+
+    aim2Map(closerZoom, center)
+    readDataFromFirestore(center);
+}
+
+function reportMarker(content) {
+    if(confirm("report this marker : " + content + " ?")) 
+    {
+        db.collection("users").add({
+            time: Date.now(),
+            content: content,
+            status: false,
+        }).then((docRef) => {
+            window.alert("Thanks for your help!");
+        }).catch((error) => {
+            handleError("reportMarker",
+            "Upload to database failed", errorWindow, map.getCenter());
+        });
+    } 
+    
+}
+
+function setUserCenterPos(pos, ind) {
+    centerLatlng = pos;
+    centerIndex = ind;
+}
+
+function closeOtherWindow() {
+    if(centerIndex > 0)
+        markerWindowinfos[centerIndex].close();
+    if(clickWindowInfo.length > 0)
+        clickWindowInfo[0].close();
+}
+
+function getContainer(type) {
+    if(type == MARKERS)
+        return markers
+    else if(type == CLICKMARKER)
+        return clickMarker
+    else if(type == USERMARKER)
+        return userMarker
+    else if(type == MARKERWINDOWINFOS)
+        return markerWindowinfos
+    else if(type == CLICKWINDOWINFO)
+        return clickWindowInfo
+}
+
+function mapContainer2Type(type, container) {
+    if(type == MARKERS)
+        marker = container
+    else if(type == CLICKMARKER)
+        clickMarker = container
+    else if(type == USERMARKER)
+        userMarker = container
+    else if(type == MARKERWINDOWINFOS)
+        markerWindowinfos = container
+    else if(type == CLICKWINDOWINFO)
+        clickWindowInfo = container
+    else 
+        handleError("mapContainer2Type",
+        "Get wrong type container.", errorWindow, map.getCenter());
+}
+
+</script>

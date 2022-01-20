@@ -1,0 +1,97 @@
+https://medium.com/@alejandrolp1986/google-maps-places-y-autocomplete-en-tu-ionic-5-app-c34e314b2f5a
+
+https://www.techiediaries.com/ionic-geolocation-google-maps-places-api-part-2/
+https://github.com/angular/components/blob/5f125395e0d39eb7e6a34d0c3355fc474f4d37a8/src/google-maps/README.md
+
+
+AIzaSyBI_-LzaaJ9fDOBLQE7az9Me4WCmScPwQE
+
+npm init
+
+
+
+
+npm install nodemon  產生第三方資料夾
+
+處理不同類型的請求、不同編碼、壓縮類型
+npm install --save express ejs body-parser
+簡潔程式碼
+npm install --save express-handlevars pug
+關聯式資料庫
+npm install --save mysql2
+npm install --save sequelize
+非關聯式資料庫
+npm install --save mongodb
+npm install --save mongoose
+
+npm install cookie-parser
+npm install --save express-session
+npm install --save connect-mongodb-session
+密碼加密
+npm install --save bcryptjs
+防止跨站請求偽造、製作token
+npm install --save csurf
+安全用，有T或F
+npm install --save connect-flash
+自動發送電子郵件
+npm install --save nodemailer
+npm install --save nodemailer-sendgrid-transport
+輸入訊息的驗證機制
+npm install --save express-validator
+上傳圖片
+npm install --save multer
+自動生成PDF
+npm install --save pdfkit
+金流服務
+npm install --save stripe
+識別碼
+npm install --save uuid
+製作API
+npm install --save jsonwebtoken
+即時傳遞訊息
+npm install --save socket.io
+npm install --save socket.io-client
+
+npm install --save graphql express-graphql
+
+npm install --save helmet
+壓縮網站
+npm install --save compression
+請求日誌
+npm install --save morgan
+
+openssl req -nodes -new -x509 -keyout server.key -out server.cert (common name為localhost)
+
+heroku login
+$ git add .
+$ git commit -am "make it better"
+$ git push heroku master
+
+
+測試用
+npm install --save-dev mocha chai
+
+npm install --save-dev sinon
+
+
+
+APP用
+npm install -g cordova
+npm install -g ionic
+npm install @ionic/la
+
+ionic info
+ionic start [projectname]
+ionic serve --lab
+ionic g page [pagename]
+ionic cordova plugin add cordova-plugin-googlemaps --variable API_KEY_FOR_ANDROID="<Google Maps key for Android OR empty>"
+
+ionic cordova plugin add cordova-plugin-nativegeocoder
+npm install @ionic-native/native-geocoder
+
+ionic cordova plugin add cordova-plugin-geolocation --save 
+npm install @ionic-native/geolocation
+
+npm install @ionic-native/core@beta @ionic-native/google-maps@beta
+
+ionic cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps#multiple_maps
