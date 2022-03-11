@@ -1,0 +1,175 @@
+<script>
+
+function sortMarker() {
+    container = getContainer(MARKERS);
+    container.sort(customSortMarkerTitle());
+    mapContainer2Type(MARKERS, container);
+}
+
+function customSortMarkerTitle() {
+    return function(a, b) {
+        var len = Math.min(a.title.length, b.title.length) 
+        for (let i=0; i < len; i++) {
+            if(a.title[i] > b.title[i])
+                return 1;
+            else if(a.title[i] < b.title[i])
+                return -1;
+        }
+        if (a.title.length < b.title.length)
+            return 1;
+        else
+            return -1;
+    }
+    
+}
+
+function placeMarker(pos, data, type, size) {
+    const strTitle = data.hasOwnProperty("title") ? 
+        data["title"] : CLICKTITLE;
+    const strSnippet = data.hasOwnProperty("address") ? 
+        data["address"] + decorateSnippet(data) : 
+        "";
+    const strType = data.hasOwnProperty("type") ? 
+        data["type"] : 
+        "";
+
+
+    const marker = new google.maps.Marker({
+        title: strTitle,
+        snippet: strSnippet,
+        position: pos, 
+        map: map,
+        icon: new google.maps.MarkerImage(
+                getMarkerIconPath(strType), 
+                null, 
+                null, 
+                null, 
+                new google.maps.Size(size, size) 
+            ),
+    });
+
+    markerContainer = getContainer(type);
+    markerContainer.push(marker);
+    mapContainer2Type(type, markerContainer)
+}
+
+function decorateSnippet(data) {
+    var res = "";
+    const dayIndex = (new Date().getDay() + 6) % 7;
+    const strParking = data["parking"];
+    const strRemark = data["other"];
+
+    if (data["time"].length == 1)
+        res += '<br>' + data["time"][0];
+    else {
+        res += '<br>' + data["time"][dayIndex];
+        res  = res.replace('N', '不開放')
+    }
+        
+    if (strParking == "O")
+        res += '<br>' + 'Parking';
+    else if (strParking == "X")
+        res += '<br>' + 'No parking';
+
+    if (strRemark.length > 0)
+        res += "<br>" + strRemark.toString();
+
+    return res;
+}
+
+function setMarkerIcon(type, size) {
+    container = getContainer(type);
+    for (let i = 0; i < container.length; i++) {
+        container[i].setIcon(
+            new google.maps.MarkerImage(
+                container[i].getIcon().url, //marker's same icon graphic
+                null, //size
+                null, //origin
+                null, //anchor
+                new google.maps.Size(size, size) //changes the scale
+            )
+        );
+    }
+    mapContainer2Type(type, container);
+}
+
+function getMarkerIconSize() {
+    var zoom = map.getZoom();
+    var zoomSize = iconSizeZoom0 * (1 + 0.2 * (zoom - lastZoom));
+    zoomSize = Math.max(iconSizeZoom0, zoomSize);
+    return zoomSize;
+}
+
+function getMarkerIconPath(type) {
+    const folderBase = "images/";
+    const iconBase = 'http://maps.gstatic.com/mapfiles/place_api/icons';
+
+    if (type.length == 0)
+        return iconBase + '/geocode-71.png'
+
+    switch(type) {
+        case "咖啡廳":
+            return folderBase + 'PeeLACE_TYPE004.png';
+        case "速食店":
+            return folderBase + 'PeeLACE_TYPE002.png';
+        case "交通建設":
+            return folderBase + 'PeeLACE_TYPE001.png';
+        case "政府機關":
+            return iconBase + 'civic_building-71.png';   
+        case "加油站":
+            return folderBase + 'PeeLACE_TYPE006.png';
+        case "商店":
+            return folderBase + 'PeeLACE_TYPE003.png';
+        case "便利商店":
+            return folderBase + 'PeeLACE_TYPE005.png';
+        case "戶外":
+            return folderBase + 'PeeLACE_TYPE007.png';
+        default:
+            return iconBase + 'zoo-71.png';
+    }
+}
+
+function setWindowInfo(markerType, windowInfoType) {
+    markerContainer = getContainer(markerType);
+    windowInfoContainer = [];
+    for (let i=0; i<markerContainer.length; i++) {
+        
+        var markerWindow = new google.maps.InfoWindow({
+            content: getMarkerWindowInfo(markerContainer[i]),
+        });
+        windowInfoContainer.push(markerWindow);
+
+        markerContainer[i].addListener("click", () => {
+            closeOtherWindow();
+            const markerPos = markerContainer[i].position;
+            setUserCenterPos(markerPos, i);
+
+            windowInfoContainer[i].open({
+                anchor: markerContainer[i],
+                map,
+                shouldFocus: false,
+            });
+        });
+    }
+    mapContainer2Type(markerType, markerContainer);
+    mapContainer2Type(windowInfoType, windowInfoContainer);
+}
+
+function getMarkerWindowInfo(marker) {
+    var reportParam = "";
+    if(marker.title == CLICKTITLE)
+        reportParam = marker.position;
+    else
+        reportParam = marker.title;
+    
+    const contentString = 
+        "<h1>" + marker.title + "</h1>" 
+        + "<h3>" + marker.snippet + "</h3>"
+        + '<button onclick="markerNevigation(\''+marker.position+ '\')" class="btn">↓</button>'
+        + '<button onclick="newSearchCenter(\''+marker.position+ '\')" class="btn">⊙</button>'
+        + '<button onclick="reportMarker(\''+ reportParam + '\')" class="btn">？</button>' 
+        ;   
+    return contentString;
+}
+
+</script>

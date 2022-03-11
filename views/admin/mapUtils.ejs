@@ -1,0 +1,55 @@
+<script>
+
+function aim2Map(zoomSize, center) {
+    map.setZoom(zoomSize);
+    map.setCenter(center);
+}
+
+function setMapOnAll(type, bMap) {
+    container = getContainer(type)
+    for (let i = 0; i < container.length; i++) {
+        if(bMap)
+            container[i].setMap(map);
+        else
+            container[i].setMap(null);
+    }
+}
+
+function showMarkers(type) {
+    isMarkerHide = false;
+    setMapOnAll(type, true);
+}
+
+function hideMarkers(type) {
+    isMarkerHide = true;
+    setMapOnAll(type, false);
+}
+
+function clearMap() {
+    removeMarker(USERMARKER)
+    removeMarker(CLICKMARKER)
+    removeMarker(MARKERS)
+
+    clearArray(MARKERWINDOWINFOS)
+    clearArray(CLICKWINDOWINFO)
+    clearArray(MARKERTYPE)
+}
+
+function removeMarker(type) {
+    setMapOnAll(type, false);
+    mapContainer2Type(type, [])
+}
+
+function setUserCenterPos(pos, ind) {
+    centerLatlng = pos;
+    centerIndex = ind;
+}
+
+function closeOtherWindow() {
+    if(centerIndex >= 0)
+        markerWindowinfos[centerIndex].close();
+    if(clickWindowInfo.length > 0)
+        clickWindowInfo[0].close();
+}
+
+</script>

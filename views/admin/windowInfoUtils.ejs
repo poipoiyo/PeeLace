@@ -1,0 +1,69 @@
+<script>
+
+function markerNevigation(pos) {  
+    let directionsService = new google.maps.DirectionsService();
+    let request = {
+        origin: centerLatlng,
+        destination: pos,
+        travelMode: 'WALKING'
+    };
+    
+    directionsService.route(request, function(response) {
+        if (status == 'OK') {
+            let directionsDisplay = new google.maps.DirectionsRenderer({
+                map: map,
+                directions: response,
+            });
+        } 
+        else {
+            handleError("markerNevigation", 
+                "Nevigation failed to " + pos,
+                errorWindow);
+        }
+    });
+}
+
+function newSearchCenter(pos) {
+    removeMarker(MARKERS);
+    clearArray(MARKERWINDOWINFOS);
+    clearArray(MARKERTYPE);
+
+    const center = {
+        lat: Number(pos.split(', ')[0].split('(')[1]),
+        lng: Number(pos.split(', ')[1].split(')')[0]),
+    }
+
+    aim2Map(closerZoom, center);
+    readDataFromFirestore(center);
+}
+
+function reportMarker(content) {
+    var today = getTodayDate()
+    if(confirm("report this marker : " + content + " ?")) 
+    {
+        db.collection("Report").add({
+            time: today,
+            location: content,
+            status: false,
+        }).then((docRef) => {
+            window.alert("Thanks for your help!");
+        }).catch((error) => {
+            console.log(error);
+            handleError("reportMarker",
+            "Upload to database failed", 
+            errorWindow);
+        });
+    } 
+}
+
+function getTodayDate() {
+    var date = new Date()
+    var year = date.getFullYear().toString();
+    var month = date.getMonth()+1 < 10 ?
+        '0' + (date.getMonth()+1).toString() : (date.getMonth()+1).toString()
+    var day = date.getDate()+1 < 10 ?
+        '0' + (date.getDate()+1).toString() : (date.getDate()+1).toString()    
+    return year+month+day
+}
+
+</script>

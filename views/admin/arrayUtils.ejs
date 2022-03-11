@@ -1,0 +1,41 @@
+<script>
+
+function clearArray(type) {
+    mapContainer2Type(type, []);
+}
+
+function getContainer(type) {
+    if(type == MARKERS)
+        return markers
+    else if(type == CLICKMARKER)
+        return clickMarker
+    else if(type == USERMARKER)
+        return userMarker
+    else if(type == MARKERWINDOWINFOS)
+        return markerWindowinfos
+    else if(type == CLICKWINDOWINFO)
+        return clickWindowInfo
+    else if(type == MARKERTYPE)
+        return markerType
+}
+
+function mapContainer2Type(type, container) {
+    if(type == MARKERS)
+        marker = container
+    else if(type == CLICKMARKER)
+        clickMarker = container
+    else if(type == USERMARKER)
+        userMarker = container
+    else if(type == MARKERWINDOWINFOS)
+        markerWindowinfos = container
+    else if(type == CLICKWINDOWINFO)
+        clickWindowInfo = container
+    else if(type == MARKERTYPE)
+        markerType = container
+    else 
+        handleError("mapContainer2Type",
+        "Get wrong type container.", 
+        errorWindow);
+}
+
+</script>

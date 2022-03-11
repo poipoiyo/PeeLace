@@ -1,0 +1,44 @@
+<script>
+
+function addMarker2Filter() {
+    var div = document.getElementById('filter');
+    newChild = document.createElement('div');
+    newChild.id = "markerList";
+    markerContainer = getContainer(MARKERS);
+    windowInfoContainer = getContainer(MARKERWINDOWINFOS);
+
+    for (let i=0; i<markerContainer.length; i++) {
+        var thisTitle = markerContainer[i].title;
+        var thisPos = markerContainer[i].position;
+
+        btn = document.createElement('input');
+        btn.type = 'button'
+        btn.value = (i+1).toString() + '. ' + thisTitle;
+        btn.name = (i+1).toString() + '. ' + thisTitle;
+        btn.onclick = function() { 
+            aim2Map(closerZoom, thisPos);
+            closeOtherWindow();
+            setUserCenterPos(thisPos, i);
+
+            windowInfoContainer[i].open({
+                anchor: markerContainer[i],
+                map,
+                shouldFocus: false,
+            });
+        };
+        line = document.createElement('p');
+
+        newChild.appendChild(btn);
+        newChild.appendChild(line);
+    }
+    div.appendChild(newChild);
+}
+
+function removeOldMarkerList() {
+    var div = document.getElementById('filter');
+    var elem = document.getElementById("markerList");
+    if(elem)
+        div.removeChild(elem);
+}
+  
+</script>
