@@ -40,16 +40,16 @@
             <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
             <%- include('database.ejs') %>
-            <%- include('define.ejs') %>
-            <%- include('errorCodeDefine.ejs') %>
+            <%- include('../common/define.ejs') %>
+            <%- include('../common/errorCodeDefine.ejs') %>
             <%- include('map.ejs') %>
-            <%- include('error.ejs') %>
+            <%- include('../common/error.ejs') %>
             <%- include('markerUtils.ejs') %>
             <%- include('mapUtils.ejs') %>
             <%- include('markerFilter.ejs') %>
             <%- include('windowInfoUtils.ejs') %>
             <%- include('arrayUtils.ejs') %>
-            <%- include('debug_tool.ejs') %>
+            <%- include('../common/debug_tool.ejs') %>
 
             <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBI_-LzaaJ9fDOBLQE7az9Me4WCmScPwQE&callback=initMap"
                 async defer>
