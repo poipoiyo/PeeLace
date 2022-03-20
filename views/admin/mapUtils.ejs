@@ -40,15 +40,46 @@ function removeMarker(type) {
     mapContainer2Type(type, [])
 }
 
-function setUserCenterPos(pos, ind) {
-    centerLatlng = pos;
+function setUserCenterPos(pos, type) {
+    if(type == USERLOCATION) {
+        centerUserLatlng = pos;
+        return true;
+    } else if(type == USERCLICK) {
+        centerClickLatlng = pos;
+        return true;
+    }
+    return false;
+}
+
+function setCenterIndex(ind) {
     centerIndex = ind;
+    return true;
+}
+
+function getUserCenterPos() {
+    if(lastCenterType == USERLOCATION) {
+        return centerUserLatlng;
+    } else if(lastCenterType == USERCLICK) {
+        return centerClickLatlng;
+    }
+    return false;
+}
+
+function getCenterIndex() {
+    return centerIndex;
+}
+
+function setUserCenterType(type) {
+    lastCenterType = type
 }
 
 function closeOtherWindow() {
-    if(centerIndex >= 0)
-        markerWindowinfos[centerIndex].close();
-    if(clickWindowInfo.length > 0)
+    var ind = getCenterIndex();
+    
+    if(ind > CENTERISBYUSER && markerWindowinfos[ind])
+        markerWindowinfos[ind].close();
+    
+    if(clickWindowInfo.length > 0 && clickWindowInfo[0])
         clickWindowInfo[0].close();
 }
 

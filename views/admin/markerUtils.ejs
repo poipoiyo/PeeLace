@@ -27,12 +27,9 @@ function placeMarker(pos, data, type, size) {
     const strTitle = data.hasOwnProperty("title") ? 
         data["title"] : CLICKTITLE;
     const strSnippet = data.hasOwnProperty("address") ? 
-        data["address"] + decorateSnippet(data) : 
-        "";
+        data["address"] + decorateSnippet(data) : CLICKSNIPPET;
     const strType = data.hasOwnProperty("type") ? 
-        data["type"] : 
-        "";
-
+        data["type"] : CLICKTYPE;
 
     const marker = new google.maps.Marker({
         title: strTitle,
@@ -53,6 +50,7 @@ function placeMarker(pos, data, type, size) {
     mapContainer2Type(type, markerContainer)
 }
 
+// TODO : consider switch to DB
 function decorateSnippet(data) {
     var res = "";
     const dayIndex = (new Date().getDay() + 6) % 7;
@@ -129,47 +127,53 @@ function getMarkerIconPath(type) {
     }
 }
 
-function setWindowInfo(markerType, windowInfoType) {
-    markerContainer = getContainer(markerType);
-    windowInfoContainer = [];
-    for (let i=0; i<markerContainer.length; i++) {
-        
+function setWindowInfo() {
+    for (let i=0; i<markers.length; i++) {
         var markerWindow = new google.maps.InfoWindow({
-            content: getMarkerWindowInfo(markerContainer[i]),
+            content: getMarkerWindowInfo(markers[i]),
         });
-        windowInfoContainer.push(markerWindow);
+        
+        markerWindowinfos.push(markerWindow)
 
-        markerContainer[i].addListener("click", () => {
+        markers[i].addListener("click", () => {
             closeOtherWindow();
-            const markerPos = markerContainer[i].position;
-            setUserCenterPos(markerPos, i);
-
-            windowInfoContainer[i].open({
-                anchor: markerContainer[i],
+            //removeMarker(CLICKMARKER);
+            setCenterIndex(i);
+      
+            markerWindowinfos[i].open({
+                anchor: markers[i],
                 map,
                 shouldFocus: false,
             });
         });
     }
-    mapContainer2Type(markerType, markerContainer);
-    mapContainer2Type(windowInfoType, windowInfoContainer);
 }
 
 function getMarkerWindowInfo(marker) {
-    var reportParam = "";
-    if(marker.title == CLICKTITLE)
+    var reportParam = "", type;
+    if(marker.title == CLICKTITLE) {
         reportParam = marker.position;
-    else
+        type = USERCLICK;
+    } else {
         reportParam = marker.title;
+        type = ORIGIN;
+    }
     
+
+    const newSearchParam = createNavigationParam(marker.position, type, marker.title);
     const contentString = 
-        "<h1>" + marker.title + "</h1>" 
-        + "<h3>" + marker.snippet + "</h3>"
-        + '<button onclick="markerNevigation(\''+marker.position+ '\')" class="btn">↓</button>'
-        + '<button onclick="newSearchCenter(\''+marker.position+ '\')" class="btn">⊙</button>'
-        + '<button onclick="reportMarker(\''+ reportParam + '\')" class="btn">？</button>' 
+        "<h1>" + marker.title + "</h1>" + 
+        "<h3>" + marker.snippet + "</h3>" + 
+        ((marker.title != CLICKTITLE) ?
+        '<button onclick="markerNevigation(\''+marker.position+ '\')" class="btn">↓</button>' : '') +
+        '<button onclick="newSearchCenter(\''+newSearchParam+ '\')" class="btn">⊙</button>' +
+        '<button onclick="reportMarker(\''+ reportParam + '\')" class="btn">？</button>' 
         ;   
     return contentString;
+}
+
+function createNavigationParam(pos, type, title) {
+    return pos.toString() + '/' + type.toString() + '/' + title.toString();
 }
 
 </script>

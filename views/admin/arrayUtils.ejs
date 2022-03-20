@@ -21,7 +21,7 @@ function getContainer(type) {
 
 function mapContainer2Type(type, container) {
     if(type == MARKERS)
-        marker = container
+        markers = container
     else if(type == CLICKMARKER)
         clickMarker = container
     else if(type == USERMARKER)
@@ -33,9 +33,7 @@ function mapContainer2Type(type, container) {
     else if(type == MARKERTYPE)
         markerType = container
     else 
-        handleError("mapContainer2Type",
-        "Get wrong type container.", 
-        errorWindow);
+        handleError("mapContainer2Type", GET_WRONG_CONTAINER);
 }
 
 </script>

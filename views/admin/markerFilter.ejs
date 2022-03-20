@@ -4,6 +4,7 @@ function addMarker2Filter() {
     var div = document.getElementById('filter');
     newChild = document.createElement('div');
     newChild.id = "markerList";
+    
     markerContainer = getContainer(MARKERS);
     windowInfoContainer = getContainer(MARKERWINDOWINFOS);
 
@@ -16,9 +17,9 @@ function addMarker2Filter() {
         btn.value = (i+1).toString() + '. ' + thisTitle;
         btn.name = (i+1).toString() + '. ' + thisTitle;
         btn.onclick = function() { 
-            aim2Map(closerZoom, thisPos);
+            aim2Map(CLOSERZOOM, thisPos);
             closeOtherWindow();
-            setUserCenterPos(thisPos, i);
+            setCenterIndex(i);
 
             windowInfoContainer[i].open({
                 anchor: markerContainer[i],
@@ -31,6 +32,10 @@ function addMarker2Filter() {
         newChild.appendChild(btn);
         newChild.appendChild(line);
     }
+
+    if(markerContainer.length == 0)
+        alert('sorry, no results here');
+
     div.appendChild(newChild);
 }
 

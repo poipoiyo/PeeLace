@@ -1,0 +1,55 @@
+<script>
+    
+    // basic variable
+    let map, errorWindow;
+    var directionsService; 
+    var directionsRenderer; 
+
+    // container type :
+    const MARKERS           = 1, 
+          CLICKMARKER       = 2, 
+          USERMARKER        = 3,
+          MARKERWINDOWINFOS = 4, 
+          CLICKWINDOWINFO   = 5, 
+          MARKERTYPE        = 6;
+
+    // container :
+    let markers             = [], 
+        clickMarker         = [], 
+        userMarker          = [],
+        markerWindowinfos   = [], 
+        clickWindowInfo     = [],
+        markerType          = [];
+
+    // centerType with user
+    const ORIGIN            = 0,
+          USERLOCATION      = 1,
+          USERCLICK         = 2;
+
+    const initLatlng = { lat: 23.50, lng: 120.98 };
+    var mapCenterPos        = initLatlng,
+        centerUserLatlng    = initLatlng,
+        centerClickLatlng   = initLatlng,
+        lastCenterType      = ORIGIN;
+        
+    // index of markers, to close other window
+    const CENTERISBYUSER    = -1;
+    var centerIndex         = CENTERISBYUSER;
+
+    // Zoom size
+    const NORMALZOOM        = 8,
+          CLOSERZOOM        = 16,
+          NOMARKERZOOM      = 14,
+          NORMALRANGE       = 0.01;
+
+    // click marker window info context
+    const CLICKTITLE        = "User Click",
+          CLICKSNIPPET      = "",
+          CLICKTYPE         = "";
+
+    // map view
+    var isMarkerHide        = false;
+    var lastZoom            = NORMALZOOM;
+    const iconSizeZoom0     = 24;
+
+</script>

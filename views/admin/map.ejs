@@ -1,35 +1,11 @@
 <script> 
-    
-    let map, errorWindow;
-    
-    // container type :
-    const MARKERS = 1, CLICKMARKER = 2, USERMARKER = 3 ;
-    const MARKERWINDOWINFOS = 4, CLICKWINDOWINFO = 5, MARKERTYPE = 6;
 
-    const CLICKTITLE = "User Click"
-
-    let markers = [], clickMarker = [], userMarker = [];
-    let markerWindowinfos = [], clickWindowInfo = [];
-    let markerType = [];
-
-    const initLatlng = { lat: 23.50, lng: 120.98 };
-    var mapCenterPos = initLatlng;
-
-    var centerLatlng = initLatlng;
-    var centerIndex = -1;
-
-    const normalZoom = 8;
-    const closerZoom = 16;
-    const normalRange = 0.01;
-
-    var isMarkerHide = false;
-    var lastZoom = normalZoom;
-    const iconSizeZoom0 = 24;
 
 function initMap() {
     map = new google.maps.Map(document.getElementById("map"), {
-        zoom: normalZoom,
+        zoom: NORMALZOOM,
         center: initLatlng,
+        clickableIcons: false,
         styles: [
             { visibility: "off" },
             { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
@@ -52,13 +28,15 @@ function initMap() {
             { featureType: "water", elementType: "labels.text.stroke", stylers: [{ color: "#17263c" }], },
         ],
     });
-    
+    directionsService   = new google.maps.DirectionsService();
+    directionsRenderer  = new google.maps.DirectionsRenderer({
+        suppressMarkers: true
+    });
+    directionsRenderer.setMap(map);
+
+    // user location
     const locationButton = document.createElement("button");
     locationButton.setAttribute('class', 'btn btn-primary');
-    //var icon = document.createElement("span");
-    //icon.className ="glyphicon glyphicon-user";
-    //locationButton.appendChild(icon);
-
     locationButton.textContent = "My Location";
     locationButton.classList.add("custom-map-control-button");
     map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(locationButton);
@@ -72,25 +50,25 @@ function initMap() {
                     lng: position.coords.longitude,
                 };
 
-                aim2Map(closerZoom, pos);
-                setUserCenterPos(pos, -1);
+                aim2Map(CLOSERZOOM, pos);
+                setUserCenterPos(pos, USERLOCATION);
+                setCenterIndex(CENTERISBYUSER);
+                setUserCenterType(USERLOCATION);
+
                 placeMarker(pos, [], USERMARKER, getMarkerIconSize())
 
                 readDataFromFirestore(pos)
             });
         } else {
-            handleError("getCurrentPosition", 
-                "Browser doesn't support geolocation.", 
-                errorWindow);
+            handleError("getCurrentPosition", BROWSER_GEOLOCATION);
         }
     });
 
+    // filter
     const filterButton = document.createElement("button");
-    
     filterButton.setAttribute('class', 'btn btn-primary');
     filterButton.textContent = "Filter";
     map.controls[google.maps.ControlPosition.LEFT_TOP].push(filterButton);
-
     filterButton.addEventListener("click", () => {
         var markerFilter = document.getElementById('filter') 
         if (markerFilter.style.display=='none') {
@@ -108,34 +86,16 @@ function initMap() {
 
         placeMarker(event.latLng, [], CLICKMARKER, getMarkerIconSize());
 
-        var markerWindow = new google.maps.InfoWindow({
-            content: getMarkerWindowInfo(clickMarker[0]),
-        });
-        clickWindowInfo.push(markerWindow);
-        clickWindowInfo[0].open({
-                anchor: clickMarker[0],
-                map,
-                shouldFocus: false,
-            });
+        setUserCenterPos(event.latLng, USERCLICK);
+        setCenterIndex(CENTERISBYUSER);
 
-        clickMarker[0].addListener("click", () => {
-            closeOtherWindow();
-            const markerPos = clickMarker[0].position;
-            setUserCenterPos(markerPos, centerIndex);
-
-            clickWindowInfo[0].open({
-                anchor: clickMarker[0],
-                map,
-                shouldFocus: false,
-            });
-        });
-
+        clickWindowInfoAction(); 
     });
 
     google.maps.event.addListener(map, 'zoom_changed', function() {
-        if (!isMarkerHide && map.getZoom() < 14)
+        if (!isMarkerHide && map.getZoom() < NOMARKERZOOM)
             hideMarkers(MARKERS)
-        if(isMarkerHide && map.getZoom() > 14)
+        if (isMarkerHide && map.getZoom() > NOMARKERZOOM)
             showMarkers(MARKERS);
 
         setMarkerIcon(MARKERS, getMarkerIconSize())       
@@ -157,12 +117,12 @@ function initMap() {
 
 function readDataFromFirestore(center) {
     const lesserGeopoint = new firebase.firestore.GeoPoint(
-        center.lat-normalRange, 
-        center.lng-normalRange,
+        center.lat-NORMALRANGE, 
+        center.lng-NORMALRANGE,
     );
     const greaterGeopoint = new firebase.firestore.GeoPoint(
-        center.lat+normalRange, 
-        center.lng+normalRange,
+        center.lat+NORMALRANGE, 
+        center.lng+NORMALRANGE,
     );
     
     removeOldMarkerList();
@@ -177,19 +137,40 @@ function readDataFromFirestore(center) {
                 lat: doc.data()["location"]._lat,
                 lng: doc.data()["location"]._long,
             };
-            if (pos.lng > center.lng-normalRange &&
-                pos.lng < center.lng+normalRange) {
+            if (pos.lng > center.lng-NORMALRANGE &&
+                pos.lng < center.lng+NORMALRANGE) {
                 placeMarker(pos, doc.data(), MARKERS, getMarkerIconSize())
             }
         });
         sortMarker();
-        setWindowInfo(MARKERS, MARKERWINDOWINFOS)
-        addMarker2Filter()
+        setWindowInfo();
+        addMarker2Filter();
     })
     .catch((error) => {
-        handleError("readDataFromFirestore", 
-                    "The Database service failed.", 
-                    errorWindow);
+        handleError("readDataFromFirestore", DATABASE_ERROR);
+    });
+}
+
+function clickWindowInfoAction() {
+    var markerWindow = new google.maps.InfoWindow({
+        content: getMarkerWindowInfo(clickMarker[0]),
+    });
+    clickWindowInfo.push(markerWindow);
+    clickWindowInfo[0].open({
+        anchor: clickMarker[0],
+        map,
+        shouldFocus: false,
+    });
+
+    clickMarker[0].addListener("click", () => {
+        closeOtherWindow();
+        setUserCenterType(USERCLICK);
+            
+        clickWindowInfo[0].open({
+            anchor: clickMarker[0],
+            map,
+            shouldFocus: false,
+        });
     });
 }
 

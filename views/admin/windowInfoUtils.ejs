@@ -1,39 +1,52 @@
 <script>
 
 function markerNevigation(pos) {  
-    let directionsService = new google.maps.DirectionsService();
+    var originPos = getUserCenterPos();
+
+    const destinationPos = {
+        lat: Number(pos.split(', ')[0].split('(')[1]),
+        lng: Number(pos.split(', ')[1].split(')')[0]),
+    }
+
     let request = {
-        origin: centerLatlng,
-        destination: pos,
-        travelMode: 'WALKING'
+        origin: originPos,
+        destination: destinationPos,
+        travelMode: 'DRIVING'
     };
     
-    directionsService.route(request, function(response) {
+    directionsService.route(request, function(response, status) {
         if (status == 'OK') {
-            let directionsDisplay = new google.maps.DirectionsRenderer({
-                map: map,
-                directions: response,
-            });
-        } 
+            directionsRenderer.setDirections(response);
+        }
         else {
-            handleError("markerNevigation", 
-                "Nevigation failed to " + pos,
-                errorWindow);
+            alert(status)
         }
     });
 }
 
-function newSearchCenter(pos) {
+function newSearchCenter(composeParam) {
+    // TODO : turn on the same window info
+
     removeMarker(MARKERS);
     clearArray(MARKERWINDOWINFOS);
     clearArray(MARKERTYPE);
 
+    // composeParam = "(xx.xxxx, xx.xxxx)/[type]/[title]"
+    pos = composeParam.split('/')[0]
+    type = composeParam.split('/')[1]
+    title = composeParam.split('/')[2]
+
+    //pos = "(xx.xxxx, xx.xxxx)"
     const center = {
         lat: Number(pos.split(', ')[0].split('(')[1]),
         lng: Number(pos.split(', ')[1].split(')')[0]),
     }
 
-    aim2Map(closerZoom, center);
+    // tpye: ORIGIN or USERCLICK
+    if(type == USERCLICK)
+        lastCenterType = USERCLICK
+
+    aim2Map(CLOSERZOOM, center);
     readDataFromFirestore(center);
 }
 
@@ -48,10 +61,7 @@ function reportMarker(content) {
         }).then((docRef) => {
             window.alert("Thanks for your help!");
         }).catch((error) => {
-            console.log(error);
-            handleError("reportMarker",
-            "Upload to database failed", 
-            errorWindow);
+            handleError("reportMarker", DATABASE_UPLOAD_ERROR);
         });
     } 
 }
