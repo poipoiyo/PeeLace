@@ -21,7 +21,7 @@
         clickWindowInfo     = [],
         markerType          = [];
 
-    // centerType with user
+    // centerType with user motion
     const ORIGIN            = 0,
           USERLOCATION      = 1,
           USERCLICK         = 2;
@@ -51,5 +51,9 @@
     var isMarkerHide        = false;
     var lastZoom            = NORMALZOOM;
     const iconSizeZoom0     = 24;
+
+    // last window Info
+    var shouldOpenLast      = false;
+    var lastMarkerTitle     = '';
 
 </script>

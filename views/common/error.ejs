@@ -1,12 +1,7 @@
 <script>
 
 function handleError(errFunc, errCode) {
-    alert("[", errFunc, "] :", getErrorMsg(errCode));
-    //infoWindow.setPosition(mapCenterPos.lat, mapCenterPos.lng);
-    //infoWindow.setContent(
-    //    "[Err] : " + strErrFunc + "> " + strErrMsg 
-    //);
-    //infoWindow.open(map);
+    alert("[" + errFunc + "] :" + getErrorMsg(errCode));
 }
 
 function getErrorMsg(code) {

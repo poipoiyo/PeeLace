@@ -25,7 +25,6 @@ function markerNevigation(pos) {
 }
 
 function newSearchCenter(composeParam) {
-    // TODO : turn on the same window info
 
     removeMarker(MARKERS);
     clearArray(MARKERWINDOWINFOS);
@@ -45,9 +44,32 @@ function newSearchCenter(composeParam) {
     // tpye: ORIGIN or USERCLICK
     if(type == USERCLICK)
         lastCenterType = USERCLICK
-
+    else if(type == ORIGIN) {
+        shouldOpenLast = true;
+        lastMarkerTitle = title;
+    } else {
+        handleError("newSearchCenter", WRONG_USER_MOTION_TYPE);
+    }
+    
     aim2Map(CLOSERZOOM, center);
     readDataFromFirestore(center);
+}
+
+function openSameWindowInfo() {
+    if (!shouldOpenLast) 
+        return;
+
+    for (let i=0; i<markers.length; i++) {
+        if(markers[i].title == lastMarkerTitle) {
+            markerWindowinfos[i].open({
+                anchor: markers[i],
+                map,
+                shouldFocus: false,
+            });
+            break;
+        }
+    }
+    shouldOpenLast = false;
 }
 
 function reportMarker(content) {

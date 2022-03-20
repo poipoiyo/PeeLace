@@ -145,6 +145,7 @@ function readDataFromFirestore(center) {
         sortMarker();
         setWindowInfo();
         addMarker2Filter();
+        openSameWindowInfo();
     })
     .catch((error) => {
         handleError("readDataFromFirestore", DATABASE_ERROR);
