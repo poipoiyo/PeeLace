@@ -12,3 +12,10 @@ exports.getAbout = (req, res, next) => {
 		path: '/about'
 	});
 };
+
+exports.getError = (req, res, next) => {
+	res.render('admin/server-error', {
+		pageTitle: 'Server Error',
+		path: '/server-error'
+	});
+};

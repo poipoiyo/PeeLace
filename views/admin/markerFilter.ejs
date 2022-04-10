@@ -1,7 +1,7 @@
 <script>
 
 function addMarker2Filter() {
-    var div = document.getElementById('filter');
+    var div = document.getElementById('filterDiv');
     newChild = document.createElement('div');
     newChild.id = "markerList";
     
@@ -40,7 +40,7 @@ function addMarker2Filter() {
 }
 
 function removeOldMarkerList() {
-    var div = document.getElementById('filter');
+    var div = document.getElementById('filterDiv');
     var elem = document.getElementById("markerList");
     if(elem)
         div.removeChild(elem);

@@ -10,4 +10,6 @@ router.get('/', adminController.getService);
 
 router.get('/about', adminController.getAbout);
 
+router.get('/server-error', adminController.getError);
+
 module.exports = router;

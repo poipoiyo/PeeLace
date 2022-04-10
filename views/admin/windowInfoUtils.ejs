@@ -74,18 +74,31 @@ function openSameWindowInfo() {
 
 function reportMarker(content) {
     var today = getTodayDate()
-    if(confirm("report this marker : " + content + " ?")) 
-    {
+
+    var markerReport = document.getElementById('reportDiv') 
+    markerReport.style.display=''
+
+    var reportContent = document.getElementById('markerInfoReport')
+    reportContent.textContent = content;
+
+    var sendButton = document.getElementById('sendReport') 
+    sendButton.addEventListener("click", () => {
         db.collection("Report").add({
             time: today,
             location: content,
             status: false,
         }).then((docRef) => {
-            window.alert("Thanks for your help!");
+            // TODO : response message
+            markerReport.style.display='none'
         }).catch((error) => {
             handleError("reportMarker", DATABASE_UPLOAD_ERROR);
         });
-    } 
+    })
+
+    var cancelButton = document.getElementById('cancelReport') 
+    cancelButton.addEventListener("click", () => { 
+        markerReport.style.display='none'
+    })
 }
 
 function getTodayDate() {
