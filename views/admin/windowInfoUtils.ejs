@@ -87,9 +87,15 @@ function reportMarker(content) {
             time: today,
             location: content,
             status: false,
-        }).then((docRef) => {
-            // TODO : response message
+        }).then((docRef) => {   
             markerReport.style.display='none'
+            
+            var reportResponse = document.getElementById('reportResponseDiv')
+            reportResponse.style.display=''
+
+            setTimeout(() => {
+                reportResponse.style.display='none'
+            }, 3000);
         }).catch((error) => {
             handleError("reportMarker", DATABASE_UPLOAD_ERROR);
         });
