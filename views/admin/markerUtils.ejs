@@ -99,7 +99,6 @@ function getMarkerIconSize() {
 }
 
 function getMarkerIconPath(type) {
-    const folderBase = "images/";
     const iconBase = 'http://maps.gstatic.com/mapfiles/place_api/icons';
 
     if (type.length == 0)
@@ -107,21 +106,21 @@ function getMarkerIconPath(type) {
 
     switch(type) {
         case "咖啡廳":
-            return folderBase + 'PeeLACE_TYPE004.png';
+            return IMAGEFOLDER + 'PeeLACE_TYPE004.png';
         case "速食店":
-            return folderBase + 'PeeLACE_TYPE002.png';
+            return IMAGEFOLDER + 'PeeLACE_TYPE002.png';
         case "交通建設":
-            return folderBase + 'PeeLACE_TYPE001.png';
+            return IMAGEFOLDER + 'PeeLACE_TYPE001.png';
         case "政府機關":
-            return iconBase + 'civic_building-71.png';   
+            return IMAGEFOLDER + 'civic_building-71.png';   
         case "加油站":
-            return folderBase + 'PeeLACE_TYPE006.png';
+            return IMAGEFOLDER + 'PeeLACE_TYPE006.png';
         case "商店":
-            return folderBase + 'PeeLACE_TYPE003.png';
+            return IMAGEFOLDER + 'PeeLACE_TYPE003.png';
         case "便利商店":
-            return folderBase + 'PeeLACE_TYPE005.png';
+            return IMAGEFOLDER + 'PeeLACE_TYPE005.png';
         case "戶外":
-            return folderBase + 'PeeLACE_TYPE007.png';
+            return IMAGEFOLDER + 'PeeLACE_TYPE007.png';
         default:
             return iconBase + 'zoo-71.png';
     }

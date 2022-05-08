@@ -50,21 +50,12 @@ function initMap() {
     locationButton.addEventListener("click", () => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition((position) => {
-                clearMap()
 
                 const pos = {
                     lat: position.coords.latitude,
                     lng: position.coords.longitude,
                 };
-
-                aim2Map(CLOSERZOOM, pos);
-                setUserCenterPos(pos, USERLOCATION);
-                setCenterIndex(CENTERISBYUSER);
-                setUserCenterType(USERLOCATION);
-
-                placeMarker(pos, [], USERMARKER, getMarkerIconSize())
-
-                readDataFromFirestore(pos)
+                redirectUrl(pos.lat + "," + pos.lng);
             });
         } else {
             handleError("getCurrentPosition", BROWSER_GEOLOCATION);
@@ -120,6 +111,46 @@ function initMap() {
     google.maps.event.addDomListener(
         document.getElementById("map"), 'load', initMap
     );
+
+    // init location
+    var userLatlng = document.getElementById('latLngDiv').dataset.pos
+    prepareInitByUserLatlng(userLatlng)
+}
+
+function prepareInitByUserLatlng(position) {
+    if(position.length != 0) {
+        if(!position.includes(",")) {
+            redirectUrl("");
+            return;
+        }
+    
+        const lat = Number(position.split(",")[0]);
+        const lng = Number(position.split(",")[1]);
+
+        if(isNaN(lat) || isNaN(lng)) {
+            redirectUrl("");
+            return;
+        }
+        
+        const pos = {
+            lat: lat,
+            lng: lng,
+        };
+
+        startServiceByUserLocation(pos)   
+    }
+}
+
+function startServiceByUserLocation(pos) {
+    clearMap()
+    aim2Map(CLOSERZOOM, pos);
+    setUserCenterPos(pos, USERLOCATION);
+    setCenterIndex(CENTERISBYUSER);
+    setUserCenterType(USERLOCATION);
+
+    placeMarker(pos, [], USERMARKER, getMarkerIconSize())
+
+    readDataFromFirestore(pos)
 }
 
 function readDataFromFirestore(center) {
@@ -182,4 +213,9 @@ function clickWindowInfoAction() {
     });
 }
 
+function redirectUrl(strAppend) {
+    var currentUrl = window.location.href;
+    const baseUrl = currentUrl.split(MAPURL)[0];
+    window.location.replace(baseUrl + MAPURL + "/" + strAppend);
+}
 </script>
