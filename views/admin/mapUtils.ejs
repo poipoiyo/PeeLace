@@ -104,4 +104,15 @@ function isLegalPosition(lat, lng) {
     return res;
 }
 
+function popupAlert(message) {
+    var alertMsg = document.getElementById('alertMessage')
+    alertMsg.textContent = message; 
+    
+    var alertDiv = document.getElementById('alertMessageDiv')
+    alertDiv.style.display=''
+    setTimeout(() => {
+        alertDiv.style.display='none'
+    }, 3000);
+}
+
 </script>

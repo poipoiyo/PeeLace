@@ -34,7 +34,7 @@ function addMarker2Filter() {
     }
 
     if(markerContainer.length == 0)
-        alert('sorry, no results here');
+        popupAlert(getErrorMsg(NO_SEARCH_RESULT));
 
     div.appendChild(newChild);
 }
