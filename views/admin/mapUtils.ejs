@@ -83,4 +83,25 @@ function closeOtherWindow() {
         clickWindowInfo[0].close();
 }
 
+function isInboundary(dLat, dLng) {
+    const res = 
+        dLat <= TAIWAN_BOUNDS.north && 
+        dLat >= TAIWAN_BOUNDS.south &&
+        dLng >= TAIWAN_BOUNDS.west &&
+        dLng <= TAIWAN_BOUNDS.east
+    return res
+}
+
+function isLegalPosition(lat, lng) {
+    res = false
+    const dLat = Number(lat)
+    if ( dLat != "NaN" && Number(lng) != "NaN") {
+        const dLng = 0 - Number(lng); // default longitude is negative
+        if ( isInboundary(dLat, dLng) ) {
+            res = true;
+        }
+    }
+    return res;
+}
+
 </script>

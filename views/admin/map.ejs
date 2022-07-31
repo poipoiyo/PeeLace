@@ -113,30 +113,18 @@ function initMap() {
     );
 
     // init location
-    var userLatlng = document.getElementById('latLngDiv').dataset.pos
-    prepareInitByUserLatlng(userLatlng)
+    var userLat = document.getElementById('user_lat').dataset.lat
+    var userLng = document.getElementById('user_lng').dataset.lng
+    initByUserLatlng(userLat, userLng)
 }
 
-function prepareInitByUserLatlng(position) {
-    if(position.length != 0) {
-        if(!position.includes(",")) {
-            redirectUrl("");
-            return;
-        }
-    
-        const lat = Number(position.split(",")[0]);
-        const lng = Number(position.split(",")[1]);
-
-        if(isNaN(lat) || isNaN(lng)) {
-            redirectUrl("");
-            return;
-        }
-        
+function initByUserLatlng(lat, lng) {
+    console.log("initByUserLatlng", lat, lng)
+    if(isLegalPosition(lat, lng)) {
         const pos = {
-            lat: lat,
-            lng: lng,
-        };
-
+            lat: Number(lat),
+            lng: 0 - Number(lng),
+        };  
         startServiceByUserLocation(pos)   
     }
 }

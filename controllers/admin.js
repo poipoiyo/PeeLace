@@ -1,14 +1,5 @@
-
 exports.getMain = (req, res, next) => {
 	res.redirect('/main');
-};
-
-exports.getService = (req, res, next) => {
-	res.render('admin/service', {
-		pageTitle: 'PeeLace',
-		path: '/main',
-		startPos: '',
-	});
 };
 
 exports.getAbout = (req, res, next) => {
@@ -26,13 +17,15 @@ exports.getError = (req, res, next) => {
 };
 
 
-exports.getUserLatLng = (req, res, next) => {
-	const userLatlng = req.params.latlng;
-	
+exports.getUserLatLng = (req, res, next) => {       
+	const lat = req.query.x;
+	const lng = req.query.y;
+
 	res.render('admin/service', {
 		pageTitle: 'PeeLace',
 		path: '/main',
-		startPos: userLatlng,
+		lat: lat,
+		lng: lng,
 	});
 }; 
 
