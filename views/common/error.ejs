@@ -1,9 +1,7 @@
 <script>
 
-function handleError(errFunc, errCode) {
-    var currentUrl = window.location.href;
-    window.location.replace(currentUrl + "/server-error");
-    console.log("[" + errFunc + "] :" + getErrorMsg(errCode));
+function handleError(errFunc, errMsg) {
+    console.log("[" + errFunc + "] :", errMsg);
 }
 
 function getErrorMsg(code) {

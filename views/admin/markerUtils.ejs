@@ -24,8 +24,8 @@ function customSortMarkerTitle() {
 }
 
 function placeMarker(pos, data, type, size) {
-    const strTitle = data.hasOwnProperty("title") ? 
-        data["title"] : CLICKTITLE;
+    const strTitle = data.hasOwnProperty("name") ? 
+        data["name"] : CLICKTITLE;
     const strSnippet = data.hasOwnProperty("address") ? 
         data["address"] + decorateSnippet(data) : CLICKSNIPPET;
     const strType = data.hasOwnProperty("type") ? 
@@ -50,7 +50,6 @@ function placeMarker(pos, data, type, size) {
     mapContainer2Type(type, markerContainer)
 }
 
-// TODO : consider switch to DB
 function decorateSnippet(data) {
     var res = "";
     const dayIndex = (new Date().getDay() + 6) % 7;

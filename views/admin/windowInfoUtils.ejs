@@ -48,7 +48,7 @@ function newSearchCenter(composeParam) {
         shouldOpenLast = true;
         lastMarkerTitle = title;
     } else {
-        handleError("newSearchCenter", WRONG_USER_MOTION_TYPE);
+        handleError("newSearchCenter", "Wrong type of user click motion");
     }
     
     aim2Map(CLOSERZOOM, center);
@@ -97,7 +97,7 @@ function reportMarker(content) {
                 reportResponse.style.display='none'
             }, 3000);
         }).catch((error) => {
-            handleError("reportMarker", DATABASE_UPLOAD_ERROR);
+            handleError("reportMarker", error);
         });
     })
 
