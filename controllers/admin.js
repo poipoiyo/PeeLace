@@ -3,19 +3,11 @@ exports.getMain = (req, res, next) => {
 };
 
 exports.getAbout = (req, res, next) => {
-	res.render('admin/about', {
+	res.render('about/about', {
 		pageTitle: 'About us',
 		path: '/about'
 	});
 };
-
-exports.getError = (req, res, next) => {
-	res.render('admin/server-error', {
-		pageTitle: 'Server Error',
-		path: '/server-error'
-	});
-};
-
 
 exports.getUserLatLng = (req, res, next) => {       
 	const lat = req.query.x;
