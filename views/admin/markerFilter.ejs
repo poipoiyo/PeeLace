@@ -14,6 +14,7 @@ function addMarker2Filter() {
 
         btn = document.createElement('input');
         btn.type = 'button'
+        btn.setAttribute('class', 'btn btn-primary');
         btn.value = (i+1).toString() + '. ' + thisTitle;
         btn.name = (i+1).toString() + '. ' + thisTitle;
         btn.onclick = function() { 
@@ -34,7 +35,7 @@ function addMarker2Filter() {
     }
 
     if(markerContainer.length == 0)
-        popupAlert(getErrorMsg(NO_SEARCH_RESULT));
+        popupAlert("Sorry, there is no result. :(");
 
     div.appendChild(newChild);
 }

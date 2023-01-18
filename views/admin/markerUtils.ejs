@@ -101,7 +101,7 @@ function getMarkerIconPath(type) {
     const iconBase = 'http://maps.gstatic.com/mapfiles/place_api/icons';
 
     if (type.length == 0)
-        return iconBase + '/geocode-71.png'
+    return IMAGEFOLDER + 'PeeLACE_TYPE000.png';
 
     switch(type) {
         case "咖啡廳":
@@ -121,7 +121,7 @@ function getMarkerIconPath(type) {
         case "戶外":
             return IMAGEFOLDER + 'PeeLACE_TYPE007.png';
         default:
-            return iconBase + 'zoo-71.png';
+            return IMAGEFOLDER + 'PeeLACE_TYPE999.png';
     }
 }
 
@@ -162,9 +162,9 @@ function getMarkerWindowInfo(marker) {
         "<h1>" + marker.title + "</h1>" + 
         "<h3>" + marker.snippet + "</h3>" + 
         ((marker.title != CLICKTITLE) ?
-        '<button onclick="markerNevigation(\''+marker.position+ '\')" class="btn">↓</button>' : '') +
-        '<button onclick="newSearchCenter(\''+composeParam+ '\')" class="btn">⊙</button>' +
-        '<button onclick="reportMarker(\''+ reportParam + '\')" class="btn">？</button>' 
+        '<button onclick="markerNevigation(\''+marker.position+ '\')" class="btn"><i class="fas fa-route"></i></button>' : '') +
+        '<button onclick="newSearchCenter(\''+composeParam+ '\')" class="btn"><i class="far fa-dot-circle"></i></button>' +
+        '<button onclick="reportMarker(\''+ reportParam + '\')" class="btn"><i class="fas fa-bug"></i></button>' 
         ;   
     return contentString;
 }
