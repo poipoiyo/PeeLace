@@ -11,9 +11,6 @@ router.get('/', adminController.getMain);
 router.get('/main', adminController.getUserLatLng); 
 
 router.get('/about', adminController.getAbout);
-
-router.get('/server-error', adminController.getError);
-
  
 //------------------------------------------------
 // expect URL :
@@ -21,7 +18,5 @@ router.get('/server-error', adminController.getError);
 // example :
 // http://localhost:3000/main?x=25.001&y=-121.500
 //------------------------------------------------
-
-
 
 module.exports = router;
