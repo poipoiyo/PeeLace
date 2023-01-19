@@ -1,7 +1,5 @@
 <script> 
 
-//https://stackoverflow.com/questions/62537666/publishing-android-gps-location-over-nodejs-server-locally
-//https://developers.google.com/maps/documentation/javascript/examples/overlay-popup#maps_overlay_popup-javascript
 function initMap() {
     map = new google.maps.Map(document.getElementById("map"), {
         zoom: NORMALZOOM,
@@ -58,22 +56,24 @@ function initMap() {
                 redirectUrl(pos.lat + "," + pos.lng);
             });
         } else {
-            handleError("getCurrentPosition", BROWSER_GEOLOCATION);
+            handleError("getCurrentPosition", "Browser doesn't support geolocation.");
         }
     });
 
     // filter
     const filterButton = document.createElement("button");
     filterButton.setAttribute('class', 'btn btn-primary');
-    filterButton.textContent = "Filter";
+    filterButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
     map.controls[google.maps.ControlPosition.LEFT_TOP].push(filterButton);
     filterButton.addEventListener("click", () => {
-        var markerFilter = document.getElementById('filterDiv') 
+        var markerFilter = document.getElementById('filterDiv')
         if (markerFilter.style.display=='none') {
             markerFilter.style.display=''
+            filterButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
         } 
         else {
             markerFilter.style.display='none'
+            filterButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
         }
     });
 
@@ -119,7 +119,6 @@ function initMap() {
 }
 
 function initByUserLatlng(lat, lng) {
-    console.log("initByUserLatlng", lat, lng)
     if(isLegalPosition(lat, lng)) {
         const pos = {
             lat: Number(lat),
@@ -142,29 +141,20 @@ function startServiceByUserLocation(pos) {
 }
 
 function readDataFromFirestore(center) {
-    const lesserGeopoint = new firebase.firestore.GeoPoint(
-        center.lat-NORMALRANGE, 
-        center.lng-NORMALRANGE,
-    );
-    const greaterGeopoint = new firebase.firestore.GeoPoint(
-        center.lat+NORMALRANGE, 
-        center.lng+NORMALRANGE,
-    );
-    
     removeOldMarkerList();
 
     db.collection("PL_Marker_DB")
-    .where('location', '>', lesserGeopoint)
-    .where('location', '<', greaterGeopoint)
     .get()
     .then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
             const pos = {
-                lat: doc.data()["location"]._lat,
-                lng: doc.data()["location"]._long,
+                lat: Number(doc.data()["latitude"]),
+                lng: Number(doc.data()["longitude"]),
             };
             if (pos.lng > center.lng-NORMALRANGE &&
-                pos.lng < center.lng+NORMALRANGE) {
+                pos.lng < center.lng+NORMALRANGE &&
+                pos.lat > center.lat-NORMALRANGE &&
+                pos.lat < center.lat+NORMALRANGE) {
                 placeMarker(pos, doc.data(), MARKERS, getMarkerIconSize())
             }
         });
@@ -174,7 +164,7 @@ function readDataFromFirestore(center) {
         openSameWindowInfo();
     })
     .catch((error) => {
-        handleError("readDataFromFirestore", DATABASE_ERROR);
+        handleError("readDataFromFirestore", error);
     });
 }
 
