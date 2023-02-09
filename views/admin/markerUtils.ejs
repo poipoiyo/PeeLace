@@ -1,5 +1,12 @@
 <script>
 
+function isCloseEnough(center, pos) {
+    return pos.lng > center.lng-NORMALRANGE &&
+        pos.lng < center.lng+NORMALRANGE &&
+        pos.lat > center.lat-NORMALRANGE &&
+        pos.lat < center.lat+NORMALRANGE
+}
+
 function sortMarker() {
     container = getContainer(MARKERS);
     container.sort(customSortMarkerTitle());
@@ -64,9 +71,9 @@ function decorateSnippet(data) {
     }
         
     if (strParking == "O")
-        res += '<br>' + 'Parking';
+        res += '<br>' + '附帶停車場';
     else if (strParking == "X")
-        res += '<br>' + 'No parking';
+        res += '<br>' + '無停車場';
 
     if (strRemark.length > 0)
         res += "<br>" + strRemark.toString();
@@ -98,8 +105,6 @@ function getMarkerIconSize() {
 }
 
 function getMarkerIconPath(type) {
-    const iconBase = 'http://maps.gstatic.com/mapfiles/place_api/icons';
-
     if (type.length == 0)
     return IMAGEFOLDER + 'PeeLACE_TYPE000.png';
 
@@ -111,7 +116,7 @@ function getMarkerIconPath(type) {
         case "交通建設":
             return IMAGEFOLDER + 'PeeLACE_TYPE001.png';
         case "政府機關":
-            return IMAGEFOLDER + 'civic_building-71.png';   
+            return IMAGEFOLDER + 'PeeLACE_TYPE008.png';   
         case "加油站":
             return IMAGEFOLDER + 'PeeLACE_TYPE006.png';
         case "商店":
@@ -150,21 +155,24 @@ function getMarkerWindowInfo(marker) {
     var reportParam = "", type;
     if(marker.title == CLICKTITLE) {
         reportParam = marker.position;
+        css = 'clickwindow'; 
         type = USERCLICK;
     } else {
         reportParam = marker.title;
+        css = 'markerwindow'
         type = ORIGIN;
     }
     
-
     const composeParam = createComposeParam(marker.position, type, marker.title);
     const contentString = 
+        "<div class=" + css + ">" +
         "<h1>" + marker.title + "</h1>" + 
-        "<h3>" + marker.snippet + "</h3>" + 
+        "<h3>" + marker.snippet + "</h3>" +
         ((marker.title != CLICKTITLE) ?
-        '<button onclick="markerNevigation(\''+marker.position+ '\')" class="btn"><i class="fas fa-route"></i></button>' : '') +
-        '<button onclick="newSearchCenter(\''+composeParam+ '\')" class="btn"><i class="far fa-dot-circle"></i></button>' +
-        '<button onclick="reportMarker(\''+ reportParam + '\')" class="btn"><i class="fas fa-bug"></i></button>' 
+        '<div class="tooltip"><button onclick="markerNevigation(\''+marker.position+ '\')" class="btn"><i class="fas fa-route"></i><span class="tooltiptext">導航至此</span></button></div>' : '') +
+        '<div class="tooltip"><button onclick="newSearchCenter(\''+composeParam+ '\')" class="btn"><i class="far fa-dot-circle"></i><span class="tooltiptext">搜尋此處</span></button></div>' +
+        '<div class="tooltip"><button onclick="reportMarker(\''+ reportParam + '\')" class="btn"><i class="fas fa-bug"></i><span class="tooltiptext">地點錯誤回報</span></button></div>' +
+        '</div>'
         ;   
     return contentString;
 }
