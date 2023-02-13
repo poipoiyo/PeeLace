@@ -36,3 +36,4 @@ Users are allowed to search restrooms nearby.
 
 # Data format
 
+<img src="https://github.com/poipoiyo/Demo-image/blob/main/PeeLace/DataFormat.png" width="80%" />
