@@ -28,6 +28,8 @@ Users are allowed to search restrooms nearby.
 
 # Requirements
 
+- Keys should be placed inside `database.ejs` and `mapService.ejs`
+
 - Google api: [Directions API](https://developers.google.com/maps/documentation/directions/overview?hl=en), [Maps JavaScript API](https://developers.google.com/maps/documentation/javascript/overview?hl=en)
 
 - Firestore: To get my own database keys
@@ -37,3 +39,4 @@ Users are allowed to search restrooms nearby.
 # Data format
 
 <img src="https://github.com/poipoiyo/Demo-image/blob/main/PeeLace/DataFormat.png" width="30%" />
+
