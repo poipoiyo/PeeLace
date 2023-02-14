@@ -40,3 +40,10 @@ Users are allowed to search restrooms nearby.
 
 <img src="https://github.com/poipoiyo/Demo-image/blob/main/PeeLace/DataFormat.png" width="30%" />
 
+# More detail about google map
+1. [Map style](https://developers.google.com/maps/documentation/javascript/examples/style-array)
+2. [Restrict map only in Taiwan](https://developers.google.com/maps/documentation/javascript/examples/control-bounds-restriction)
+3. [Map Event](https://developers.google.com/maps/documentation/javascript/events?hl=en) : Such as click, zoom
+4. [Custom marker](https://developers.google.com/maps/documentation/javascript/custom-markers?hl=en)
+5. [Custom window info](https://developers.google.com/maps/documentation/javascript/infowindows?hl=en)
+6. [Navigate](https://developers.google.com/maps/documentation/directions/overview?hl=en)
